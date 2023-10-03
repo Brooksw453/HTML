@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Notes</title>
+    <style>
+        body {
+            font-family: "Helvetica", sans-serif;
+            font-size: 18px;
+        }
+        .heading {
+            font-weight: bold;
+            color: purple;
+            cursor: pointer;
+            font-size: 28px;
+        }
+        textarea {
+            width: calc(100% - 35px);
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: inline-block;
+            vertical-align: middle;
+            height: 80px; /* Adjusted for 4 lines */
+        }
+        input[type="text"] {
+            width: calc(100% - 35px);
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .field {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+        }
+        .note-title {
+            font-weight: bold;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="heading">Course Notes</h1>
+    <div id="notes-section">
+        <!-- Dynamic notes will be added here -->
+    </div>
+    <button onclick="addNote()">Add Note</button>
+    <button onclick="removeNote()">Remove Note</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedNotes = JSON.parse(localStorage.getItem('notes')) || [];
+            savedNotes.forEach((note) => {
+                addNote(note.title, note.text);
+            });
+            for (let i = savedNotes.length; i < 1; i++) {
+                addNote();
+            }
+        });
+
+        function addNote(savedTitle = "", savedText = "") {
+            const notesSection = document.getElementById("notes-section");
+            const newNote = document.createElement("div");
+            newNote.className = "field";
+            newNote.innerHTML = `
+                <span class="note-title">Note</span>
+                <input type="text" placeholder="Title" value="${savedTitle}">
+                <textarea placeholder="Your note here...">${savedText}</textarea>
+            `;
+            notesSection.appendChild(newNote);
+            saveNotes();
+        }
+
+        function removeNote() {
+            const notesSection = document.getElementById("notes-section");
+            if (notesSection.children.length > 0) {
+                notesSection.removeChild(notesSection.lastChild);
+                saveNotes();
+            }
+        }
+
+        function saveNotes() {
+            const notesSection = document.getElementById("notes-section");
+            const notes = Array.from(notesSection.children).map(note => {
+                const titleField = note.querySelector('input[type="text"]');
+                const textField = note.querySelector('textarea');
+                return { title: titleField.value, text: textField.value };
+            });
+            localStorage.setItem('notes', JSON.stringify(notes));
+        }
+
+        document.getElementById("notes-section").addEventListener("input", saveNotes);
+    </script>
+</body>
+</html>
