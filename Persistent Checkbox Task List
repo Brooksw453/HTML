@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Management System</title>
+    <style>
+        body {
+            font-family: "Helvetica", sans-serif;
+            font-size: 18px;
+        }
+        .heading {
+            font-weight: bold;
+            color: purple;
+            cursor: pointer;
+            font-size: 28px;
+        }
+        input[type="text"] {
+            width: calc(100% - 35px);
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        input[type="checkbox"] {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .field {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="heading">Task List (check completed items)</h1>
+    <div id="checkbox-section">
+        <!-- Dynamic checkboxes and input fields will be added here -->
+    </div>
+    <button onclick="addField()">Add Field</button>
+    <button onclick="removeField()">Remove Field</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedFields = JSON.parse(localStorage.getItem('fields')) || [];
+            savedFields.forEach((field, index) => {
+                addField(field.text, field.isChecked);
+            });
+            for (let i = savedFields.length; i < 5; i++) {
+                addField();
+            }
+        });
+
+        function addField(savedText = "", isChecked = false) {
+            const checkboxSection = document.getElementById("checkbox-section");
+            const newField = document.createElement("div");
+            newField.className = "field";
+            newField.innerHTML = `
+                <input type="checkbox" ${isChecked ? "checked" : ""}>
+                <input type="text" placeholder="Enter text here" value="${savedText}">
+            `;
+            checkboxSection.appendChild(newField);
+            saveFields();
+        }
+
+        function removeField() {
+            const checkboxSection = document.getElementById("checkbox-section");
+            if (checkboxSection.children.length > 0) {
+                checkboxSection.removeChild(checkboxSection.lastChild);
+                saveFields();
+            }
+        }
+
+        function saveFields() {
+            const checkboxSection = document.getElementById("checkbox-section");
+            const fields = Array.from(checkboxSection.children).map(field => {
+                const checkbox = field.querySelector('input[type="checkbox"]');
+                const textField = field.querySelector('input[type="text"]');
+                return { isChecked: checkbox.checked, text: textField.value };
+            });
+            localStorage.setItem('fields', JSON.stringify(fields));
+        }
+
+        document.getElementById("checkbox-section").addEventListener("input", saveFields);
+    </script>
+</body>
+</html>
